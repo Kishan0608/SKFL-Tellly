@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tally Pro Financial Ledger - Rakesh Bhai Accounts</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Pro Header Bar -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-badge">T</div>
+      <div class="brand-info">
+        <h1>Tally Pro Ledger & Reconciliation Suite</h1>
+        <p>Exclusive RAKESHBHAI CASH & RAKESH IDBI CURRENT Ledger</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-primary" id="pasteExcelBtn">📋 Paste Excel Rows (Ctrl+V)</button>
+      <button class="btn btn-secondary" id="exportCsvBtn">📊 Export CSV</button>
+      <button class="btn btn-secondary" id="resetDataBtn">🗑️ Clear All Data</button>
+      <button class="btn btn-secondary" id="addEntryBtn">➕ Add Entry</button>
+    </div>
+  </header>
+
+  <!-- Executive Accounts Matrix Card -->
+  <section class="executive-card">
+    <div class="card-header-bar">
+      <div class="card-title">
+        <div class="card-title-icon">💼</div>
+        Rakesh Bhai Accounts Summary Matrix
+      </div>
+      <div class="input-field-sm" style="flex-direction: row; align-items: center; gap: 8px;">
+        <label for="dateFilter" style="margin: 0;">Date Filter:</label>
+        <select id="dateFilter" class="input-control" style="font-family: inherit;">
+          <option value="ALL">All Dates Combined</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Accounts Matrix Table -->
+    <div class="matrix-table-wrapper">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th style="width: 280px;">PARTY ACCOUNT</th>
+            <th>OPENING (₹)</th>
+            <th>INCOME (₹)</th>
+            <th>EXPENSE (₹)</th>
+            <th>CLOSING BALANCE (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Row 1: CASH -->
+          <tr>
+            <td class="party-cell">
+              <span class="account-tag cash">💵 CASH</span>
+              RAKESHBHAI CASH
+            </td>
+            <td id="summaryCashOpening">0</td>
+            <td style="color: var(--emerald-text);" id="summaryCashIncome">0</td>
+            <td style="color: var(--rose-text);" id="summaryCashExpense">0</td>
+            <td style="color: var(--amber-text);" id="summaryCashClosing">0</td>
+          </tr>
+
+          <!-- Row 2: IDBI -->
+          <tr>
+            <td class="party-cell">
+              <span class="account-tag idbi">🏦 BANK</span>
+              RAKESH IDBI CURRENT
+            </td>
+            <td id="summaryIdbiOpening">0</td>
+            <td style="color: var(--emerald-text);" id="summaryIdbiIncome">0</td>
+            <td style="color: var(--rose-text);" id="summaryIdbiExpense">0</td>
+            <td style="color: var(--amber-text);" id="summaryIdbiClosing">0</td>
+          </tr>
+
+          <!-- Row 3: TOTAL -->
+          <tr class="total-row">
+            <td class="party-cell" style="color: var(--amber-text);">
+              📊 COMBINED TOTAL
+            </td>
+            <td id="summaryTotalOpening">0</td>
+            <td id="summaryTotalIncome">0</td>
+            <td id="summaryTotalExpense">0</td>
+            <td id="summaryTotalClosing">0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4-Column Reconciliation Toolbar (Fields 1 & 2: User Inputs | Fields 3 & 4: Auto-Calculated) -->
+    <div class="reconcile-toolbar">
+      
+      <!-- CASH Account 4-Column Grid -->
+      <div class="reconcile-item-card">
+        <div class="item-card-header">
+          <span class="item-card-title">
+            💵 RAKESHBHAI CASH — Scratchpad vs Official Tally Reconciliation
+          </span>
+          <span id="cashDiffBadge" class="diff-pill matched">Calculating...</span>
+        </div>
+
+        <div class="reconcile-4col-grid">
+          <!-- Field 1: User Input Opening -->
+          <div class="input-field-sm">
+            <label for="cashOpeningInput">1. Cash Opening (Our Entry)</label>
+            <input type="number" id="cashOpeningInput" class="input-control" placeholder="e.g. 29066" />
+          </div>
+
+          <!-- Field 2: User Input Target Closing -->
+          <div class="input-field-sm">
+            <label for="expectedCashInput">2. Cash Closing (Our Entry)</label>
+            <input type="number" id="expectedCashInput" class="input-control" placeholder="e.g. 11256" />
+          </div>
+
+          <!-- Field 3: Auto Default Same as Opening -->
+          <div class="input-field-sm">
+            <label>3. Cash Opening (Tally)</label>
+            <div class="calc-display-box" id="tallyCashOpeningDisplay">₹ 0</div>
+          </div>
+
+          <!-- Field 4: Auto Calculated Based on Provided Entry -->
+          <div class="input-field-sm">
+            <label>4. Cash Closing (Tally)</label>
+            <div class="calc-display-box" id="tallyCashClosingDisplay">₹ 0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IDBI Account 4-Column Grid -->
+      <div class="reconcile-item-card">
+        <div class="item-card-header">
+          <span class="item-card-title">
+            🏦 RAKESH IDBI CURRENT — Scratchpad vs Official Tally Reconciliation
+          </span>
+          <span id="idbiDiffBadge" class="diff-pill matched">Calculating...</span>
+        </div>
+
+        <div class="reconcile-4col-grid">
+          <!-- Field 1: User Input Opening -->
+          <div class="input-field-sm">
+            <label for="idbiOpeningInput">1. IDBI Opening (Our Entry)</label>
+            <input type="number" id="idbiOpeningInput" class="input-control" placeholder="e.g. 19108" />
+          </div>
+
+          <!-- Field 2: User Input Target Closing -->
+          <div class="input-field-sm">
+            <label for="expectedIdbiInput">2. IDBI Closing (Our Entry)</label>
+            <input type="number" id="expectedIdbiInput" class="input-control" placeholder="e.g. 14227" />
+          </div>
+
+          <!-- Field 3: Auto Default Same as Opening -->
+          <div class="input-field-sm">
+            <label>3. IDBI Opening (Tally)</label>
+            <div class="calc-display-box" id="tallyIdbiOpeningDisplay">₹ 0</div>
+          </div>
+
+          <!-- Field 4: Auto Calculated Based on Provided Entry -->
+          <div class="input-field-sm">
+            <label>4. IDBI Closing (Tally)</label>
+            <div class="calc-display-box" id="tallyIdbiClosingDisplay">₹ 0</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Transactions Data Grid Section -->
+  <section class="transactions-card">
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th colspan="6"></th>
+            <th colspan="2" class="th-expense">EXPENSE</th>
+            <th colspan="2" class="th-income">INCOME</th>
+            <th colspan="3"></th>
+          </tr>
+          <tr>
+            <th>#</th>
+            <th>DATE</th>
+            <th>FIRM NAME</th>
+            <th>PARTY LEDGER</th>
+            <th>PARTICULAR</th>
+            <th>TYPE</th>
+            <th>PAID BY</th>
+            <th>AMOUNT</th>
+            <th>RECEIVED BY</th>
+            <th>AMOUNT</th>
+            <th>SITE</th>
+            <th>RUNNING BAL</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Dynamic Table Rows Rendered via app.js -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Excel Bulk Paste Modal -->
+  <div class="modal-overlay" id="pasteModalOverlay">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">📋 Bulk Paste Excel Data</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+            Copy rows from Excel or Google Sheets (Ctrl + C) and press Ctrl + V below.
+          </p>
+        </div>
+        <button class="close-btn" id="closePasteModalBtn">&times;</button>
+      </div>
+
+      <div class="paste-instruction">
+        <strong>Expected Columns Order:</strong> DATE | FIRM NAME | PARTY LEDGER | PARTICULAR | TYPE | PAID BY | EXPENSE AMOUNT | RECEIVED BY | INCOME AMOUNT | SITE
+      </div>
+
+      <textarea id="excelPasteArea" class="paste-textarea" placeholder="Paste your copied Excel rows here (Ctrl + V)..."></textarea>
+
+      <div id="pastePreviewContainer" class="paste-preview-container">
+        <!-- Live parsed table preview -->
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark-secondary" id="cancelPasteModalBtn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="importPasteBtn">Import & Calculate Balances</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add New Entry Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Transaction Entry</h3>
+        <button class="close-btn" id="closeModalBtn">&times;</button>
+      </div>
+      <form id="entryForm">
+        <div class="form-grid">
+          <div class="input-field-sm">
+            <label for="entryDate">Date</label>
+            <input type="date" id="entryDate" class="input-control" required />
+          </div>
+          <div class="input-field-sm">
+            <label for="firmName">Firm Name</label>
+            <input type="text" id="firmName" class="input-control" placeholder="Toolbit Hardware" />
+          </div>
+          <div class="input-field-sm">
+            <label for="partyLedger">Party Ledger</label>
+            <input type="text" id="partyLedger" class="input-control" value="Rakesh Bhai" required />
+          </div>
+          <div class="input-field-sm">
+            <label for="particular">Particular / Description</label>
+            <input type="text" id="particular" class="input-control" placeholder="e.g. Battery i20" required />
+          </div>
+          <div class="input-field-sm">
+            <label for="entryType">Type</label>
+            <select id="entryType" class="input-control">
+              <option value="GENERAL">GENERAL</option>
+              <option value="PURCHASE">PURCHASE</option>
+              <option value="SALE">SALE</option>
+              <option value="PAYMENT">PAYMENT</option>
+              <option value="RECEIPT">RECEIPT</option>
+            </select>
+          </div>
+          <div class="input-field-sm">
+            <label for="site">Site</label>
+            <input type="text" id="site" class="input-control" placeholder="e.g. Main Workshop" />
+          </div>
+
+          <!-- Expense Section -->
+          <div class="input-field-sm">
+            <label for="paidBy" style="color: var(--rose-text);">Paid By (Expense Account)</label>
+            <input type="text" id="paidBy" class="input-control" list="accountList" placeholder="RAKESHBHAI CASH or RAKESH IDBI CURRENT" />
+          </div>
+          <div class="input-field-sm">
+            <label for="expenseAmount" style="color: var(--rose-text);">Expense Amount (₹)</label>
+            <input type="number" id="expenseAmount" class="input-control" placeholder="0" min="0" />
+          </div>
+
+          <!-- Income Section -->
+          <div class="input-field-sm">
+            <label for="receivedBy" style="color: var(--emerald-text);">Received By (Income Account)</label>
+            <input type="text" id="receivedBy" class="input-control" list="accountList" placeholder="RAKESHBHAI CASH or RAKESH IDBI CURRENT" />
+          </div>
+          <div class="input-field-sm">
+            <label for="incomeAmount" style="color: var(--emerald-text);">Income Amount (₹)</label>
+            <input type="number" id="incomeAmount" class="input-control" placeholder="0" min="0" />
+          </div>
+        </div>
+
+        <datalist id="accountList">
+          <option value="RAKESHBHAI CASH"></option>
+          <option value="RAKESH IDBI CURRENT"></option>
+        </datalist>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-dark-secondary" id="cancelModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">➕ Add Entry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
